@@ -215,6 +215,13 @@ tresult PLUGIN_API JE1DEQProcessor::process(Vst::ProcessData& data)
                 // Mix between the original and filtered signal based on the rolloff amount
                 output = filteredOutput * rolloffAmount + output * (1.0f - rolloffAmount);
             }
+
+            // Track maximum level for clipping detection
+            float absOutput = std::abs(output);
+            if (absOutput > blockMaxLevel)
+            {
+                blockMaxLevel = absOutput;
+            } 
             
             // Store the result (with safety check for NaN/Inf)
             if (!std::isfinite(output))
@@ -228,12 +235,7 @@ tresult PLUGIN_API JE1DEQProcessor::process(Vst::ProcessData& data)
                 
             outputChannel[sample] = output;
             
-            // Track maximum level for clipping detection
-            float absOutput = std::abs(output);
-            if (absOutput > blockMaxLevel)
-            {
-                blockMaxLevel = absOutput;
-            }
+
         }
     }
     
